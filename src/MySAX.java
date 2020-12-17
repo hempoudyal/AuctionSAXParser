@@ -36,11 +36,23 @@ public class MySAX extends DefaultHandler
 	private boolean hasEnds = false;
 	private boolean hasDescription = false;
 	private boolean hasLocationName = false;
+	private boolean hasCountry = false;
 
+	private boolean hasBidLocationName = false;
+	private boolean hasBidCountry = false;
+	private boolean hasBidTime = false;
+	private boolean hasBidAmount = false;
+
+	final String OLD_FORMAT = "dd-mm-yy hh:mm:ss";
+	final String NEW_FORMAT = "YYYY-MM-DD HH:MM:SS";
 
 	//List to hold Auctions object
 	private List<Auction> auctionList = null;
 	private Auction auction = null;
+
+//	//List to hold Bids object
+	private List<Bid> bidList = null;
+	private Bid bid = null;
 
 	//getter method for Auction list
 	public  List<Auction> getAuctionList() {
@@ -67,22 +79,22 @@ public class MySAX extends DefaultHandler
 		List<Auction> auctionList = handler.getAuctionList();
 
 		try {
-			PrintWriter writer = new PrintWriter("whatever.txt");
+			PrintWriter writer = new PrintWriter("auctions.csv");
+			//PrintWriter writer = new PrintWriter("whatever.txt");
 
 			//print out info
 			for (Auction auction : auctionList) {
 				System.out.println(auction);
 				//saveRecord(auction, "~/Desktop/auction.txt");
-//				writer.println(auction.getId()+","+auction.getName()+","+auction.getFirstBid()+","+
-//						auction.getNumOfBids()+","+auction.getLocationName()+","+auction.getStartedTime()+","+
-//						auction.getEndsTime()+","+auction.getSellerId()+","+auction.getDescription());
-				writer.println(auction.getId()+","+auction.getName()+","+auction.getFirstBid()+","+auction.getNumOfBids()
-				+","+auction.getLocationName()+","+auction.getStartedTime()+","+auction.getEndsTime()+","+auction.getSellerId()+","
-				+auction.getDescription());
+				writer.println("\""+auction.getId()+"\""+","+"\""+auction.getName()+"\""+","+"\""+auction.getFirstBid()+"\""+","+"\""+auction.getBuyPrice()+"\""+
+						","+"\""+auction.getStartedTime()+"\""+","+"\""+auction.getEndsTime()+"\""+","+"\""+auction.getDescription()+"\""+
+						","+"\""+auction.getLatitude()+"\""+","+"\""+auction.getLongitude()+"\""+
+						","+"\""+auction.getSellerId()+"\""+","+"\""+auction.getCountry()+"\""+","+"\""+auction.getLocationName()+"\"");
 			}
 		} catch (Exception E) {
 
 		}
+
 	}
 
     public  static  void saveRecord(Auction auction, String filepath){
@@ -100,10 +112,6 @@ public class MySAX extends DefaultHandler
 		catch (Exception E){
 
 		}
-	}
-
-	public String removeFirstChar(String s){
-		return s.substring(1);
 	}
 
     public MySAX ()
@@ -130,6 +138,20 @@ public class MySAX extends DefaultHandler
             return nf.format(am).substring(1);
         }
     }
+
+	static String convertDate(String oldDateString){
+		String newDateString;
+
+		try {
+			SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yy HH:mm:ss");
+			Date d = sdf.parse(oldDateString);
+			sdf.applyPattern("yyyy-MM-dd HH:mm:ss");
+			newDateString = sdf.format(d);
+			return newDateString;
+		} catch (Exception e){
+			return oldDateString;
+		}
+	}
 
     ////////////////////////////////////////////////////////////////////
     // Event handlers.
@@ -164,7 +186,11 @@ public class MySAX extends DefaultHandler
 			hasFirstBid = true;
 		} else if (qName.equals("Number_of_Bids")){
 			hasNumberOfBids = true;
+		} else if (qName.equals("Buy_Price")){
+			hasBuyPrice = true;
 		} else if (qName.equals("Location")){
+			auction.setLatitude(atts.getValue("Latitude"));
+			auction.setLongitude(atts.getValue("Longitude"));
 			hasLocationName = true;
 		} else if (qName.equals("Started")){
 			hasStarted = true;
@@ -177,7 +203,28 @@ public class MySAX extends DefaultHandler
 		} else if(qName.equals("Seller")){
 			String id = atts.getValue("UserID");
 			auction.setSellerId(id);
+		} else if(qName.equals("Country")){
+			hasCountry = true;
 		}
+
+		/*
+		else if(qName.equals("Bid")){
+			bid = new Bid();
+
+			//initialize auction
+			if (auctionList == null)
+				auctionList = new ArrayList<>();
+
+			String id = atts.getValue("UserID");
+			bid = new Bid();
+
+			bid.setUserID(id);
+
+			String rating = atts.getValue("Rating");
+			bid.setRating(Integer.parseInt(rating));
+
+			auction.setBidList(bid);
+		} */
 
 
 //	if ("".equals (uri))
@@ -215,18 +262,28 @@ public class MySAX extends DefaultHandler
 		} else if (hasNumberOfBids){
     		auction.setNumOfBids(Integer.parseInt(new String(ch, start, length)));
     		hasNumberOfBids = false;
+		} else if (hasBuyPrice){
+    		auction.setBuyPrice(Double.parseDouble((new String(ch, start, length)).substring(1)));
+    		hasBuyPrice = false;
 		} else if (hasLocationName){
     		auction.setLocationName(new String(ch, start, length));
     		hasLocationName = false;
 		} else if (hasStarted){
-    		auction.setStartedTime(new String(ch, start, length));
+    		auction.setStartedTime(convertDate(new String(ch, start, length)));
     		hasStarted = false;
 		} else if (hasEnds){
-			auction.setEndsTime(new String(ch, start, length));
+			auction.setEndsTime(convertDate(new String(ch, start, length)));
 			hasEnds = false;
 		} else if (hasDescription){
-    		auction.setDescription(new String(ch, start, length));
+    		var dsc = new String(ch, start, length);
+    		if (dsc.length() > 4000) {
+				dsc.substring(0, 4000); //Description Characters limited to 4000
+			}
+    		auction.setDescription(dsc);
     		hasDescription = false;
+		} else if (hasCountry){
+    		auction.setCountry(new String(ch, start, length));
+    		hasCountry = false;
 		}
 
 //	System.out.print("Characters:    \"");
