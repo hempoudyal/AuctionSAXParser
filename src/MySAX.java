@@ -115,7 +115,7 @@ public class MySAX extends DefaultHandler
 		//System.out.println(handleString(s));
 
 		for (int i = 0; i < 40; i++){
-			String fileName = "ebay-data/items-"+i+".xml";
+			String fileName = "C:\\Users\\derma\\Projects\\AuctionSAXParser\\ebay-data\\items-"+i+".xml";
 			FileReader r = new FileReader(fileName);
 			xr.parse(new InputSource(r));
 			r.close();
@@ -416,10 +416,10 @@ public class MySAX extends DefaultHandler
 			}
 			currentValue = "";
 		} else if(qName.equals("Description")){
-    		currentValue = handleString(currentValue);
+    		currentValue = currentValue.replace("\\", "");
+			currentValue = currentValue.replace("\"", "");
 			if (currentValue.length() > 4000) {
 				currentValue = currentValue.substring(0, 4000); //Description Characters limited to 4000
-				currentValue.replaceFirst("\\*$", "");
 			}
 			auction.setDescription(currentValue);
 			currentValue = "";
