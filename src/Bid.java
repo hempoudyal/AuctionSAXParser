@@ -26,7 +26,7 @@ public class Bid {
             return location;
         }
 
-        public void setLocation(){
+        public void setLocation(String location){
             this.location = location;
         }
 
@@ -34,7 +34,7 @@ public class Bid {
             return country;
         }
 
-        public void setCountry(){
+        public void setCountry(String country){
             this.country = country;
         }
 
@@ -42,15 +42,16 @@ public class Bid {
             return time;
         }
 
-        public void setTime(){
+        public void setTime(String time){
             this.time = time;
         }
 
-        public  Double getAmount(){
+        public Double getAmount(){
             return amount;
         }
 
-        public void setAmount(){
+        public void setAmount(Double amount){
             this.amount = amount;
         }
+
 }

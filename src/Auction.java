@@ -1,17 +1,19 @@
+import java.util.ArrayList;
 import java.util.List;
 
 public class Auction {
     private int id;
     private String name;
-    private String category;
+    private List<String> category;
     private Double currently; // can be removed later
-    private Double firstBid; // ""
-    private Double buyPrice;
+    private String firstBid;
+    private String buyPrice;
     private int numOfBids;
     private String startedTime;
     private String endsTime;
     private String description;
     private String sellerId;
+    private int rating;
     private String locationName;
     private String latitude;
     private String longitude;
@@ -34,19 +36,25 @@ public class Auction {
         this.name = name;
     }
 
-    public Double getBuyPrice(){
+    public List<String> getCategory() { return category;}
+
+    public void setCategory(List<String> cat) {
+        this.category = cat;
+    }
+
+    public String getBuyPrice(){
         return buyPrice;
     }
 
-    public void setBuyPrice(Double buyPrice){
+    public void setBuyPrice(String buyPrice){
         this.buyPrice = buyPrice;
     }
 
-    public double getFirstBid(){
+    public String getFirstBid(){
         return firstBid;
     }
 
-    public void setFirstBid(double firstBid){
+    public void setFirstBid(String firstBid){
         this.firstBid = firstBid;
     }
 
@@ -138,8 +146,8 @@ public class Auction {
         this.country = country;
     }
 
-    @Override
-    public String toString() {
-        return "Auction [ItemID=" + id + ",Name=" + name  + "]";
-    }
+    public int getRating() { return  rating;}
+
+    public void setRating(int rating) { this.rating = rating; }
+
 }
